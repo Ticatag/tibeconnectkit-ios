@@ -29,6 +29,9 @@ This Kit provides all the capabilities to manage the TiBeConnect button:
 
 ## Getting started
 
+A complete working example is available
+[Here](https://github.com/TicatagSAS/tibeconnectkitdemo-ios)
+
 1. Init the framework
 
 ```objc
@@ -49,6 +52,73 @@ This Kit provides all the capabilities to manage the TiBeConnect button:
 }
 ```
 
+2.Start monitoring for ranged buttons once Bluetooth is ready
+```objc
+-(void)tiBeConnectManager:(TBCManager *)manager didBluetoothStateChanged:(CBManagerState)state
+{
+    if (state == CBManagerStatePoweredOn)
+    {
+        if (![manager isMonitoring])
+        {
+            [manager startMonitoring];
+        }
+    }
+}
+
+-(void)tiBeConnectManager:(TBCManager *)manager didRangeBeacon:(NSArray<TBCBeacon *>*)beacons
+{
+    _liveBeacons = beacons;
+    [self.tableView reloadData];
+}
+```
+
+3.Button connection
+
+```objc
+[_tiBeConnectManager connectBeacon: _beacon];
+```
+
+4.Connection established notification
+
+``` objc
+[[NSNotificationCenter defaultCenter] addObserverForName: TBCBeaconDidConnectNotification object:_beacon queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [_activityIndicator stopAnimating];
+
+        [self hideScreen: NO];
+
+        //[[NSNotificationCenter defaultCenter] removeObserver: connectionObserver];
+        [_tiBeConnectManager setButtonActionsNotifications: YES forBeacon: _beacon];
+        [_tiBeConnectManager setBatteryNotifications: YES forBeacon: _beacon];
+        [_tiBeConnectManager setTemperatureNotifications:YES forBeacon: _beacon];
+
+        [_tiBeConnectManager startRSSIMonitoringForBeacon: _beacon interval: 1.0 withCompletion:^(TBCManager *manager, TBCBeacon *beacon, NSError *error) {
+            ;
+        }];
+
+        [_tiBeConnectManager temperatureForBeacon: _beacon withCompletion:^(TBCManager *manager, TBCBeacon *beacon, NSError *error) {
+            ;
+        }];
+
+        [_tiBeConnectManager buttonModeForBeacon: _beacon withCompletion:^(TBCManager *manager, TBCBeacon *beacon, NSError *error) {
+            ;
+        }];
+
+        [_tiBeConnectManager firmwareVersionForBeacon: _beacon withCompletion:^(TBCManager *manager, TBCBeacon *beacon, NSError *error) {
+            ;
+        }];
+
+    }];
+
+    [[NSNotificationCenter defaultCenter] addObserverForName: TBCBeaconDidTemperatureChangeNotification object:_beacon queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        _temperatureLabel.text = [NSString stringWithFormat: @"Temperature: %d °C", [[note.userInfo objectForKey: @"value"] intValue]];
+    }];
+```
+
+5.Dring dring !!
+
+```objc
+[_tiBeConnectManager pingBeacon: _beacon];
+```
 ## Issues
  For general service questions and help consult the Ticatag  [support knowledge base](https://ticatag.zendesk.com/).
 
