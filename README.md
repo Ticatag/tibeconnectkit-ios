@@ -27,6 +27,28 @@ This Kit provides all the capabilities to manage the TiBeConnect button:
 5. In your project **Capabilities section**, enable the Uses Bluetooth LE accessories
 ![](step2.png)
 
+## Getting started
+
+1. Init the framework
+
+```objc
+@interface BeaconsTableViewController ()
+@property(nonatomic, strong) NSArray *liveBeacons;
+@property(nonatomic, strong) TBCManager *tiBeConnectManager;
+@end
+
+@implementation BeaconsTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.title = @"Beacons";
+
+    _tiBeConnectManager = [TBCManager shared];
+    _tiBeConnectManager.delegate=self;
+    _liveBeacons = [NSArray array];
+}
+```
+
 ## Issues
  For general service questions and help consult the Ticatag  [support knowledge base](https://ticatag.zendesk.com/).
 
